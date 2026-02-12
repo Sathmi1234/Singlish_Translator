@@ -1,12 +1,10 @@
 import os
-import google.generativeai as genai
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-2.0-flash-lite")
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 SYSTEM_PROMPT = """You are an expert translator specializing in Singlish — a casual mix of Sinhala and English commonly used in Sri Lanka.
 
@@ -39,10 +37,17 @@ def translate_singlish(text: str) -> dict:
         return {"error": "Text cannot be empty", "translated_text": None}
 
     try:
-        full_prompt = f"{SYSTEM_PROMPT}\n\nNow translate this:\nInput: {text}\nOutput:"
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user",   "content": text}
+            ],
+            temperature=0.3,
+            max_tokens=512
+        )
 
-        response = model.generate_content(full_prompt)
-        translated = response.text.strip()
+        translated = response.choices[0].message.content.strip()
 
         return {
             "source_language": "Singlish",
