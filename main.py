@@ -7,7 +7,13 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://singlish-translator.netlify.app",  # your Netlify URL
+        "http://localhost:5500",                     # VS Code Live Server
+        "http://localhost:3000",                     # local dev
+        "http://127.0.0.1:5500",                     # VS Code Live Server alt
+        "*"                                          # fallback — remove after testing
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,7 +32,7 @@ class TranslationRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Singlish → English Translator is running 🚀 (powered by Gemini)"}
+    return {"message": "Singlish → English Translator is running 🚀"}
 
 
 @app.post("/translate")
